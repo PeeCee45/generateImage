@@ -38,7 +38,7 @@ async function generate() {
 module.exports = async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.status(200).json({
-      image: generate()
+      image: await generate()
     });
   } catch (err) {
     console.error('Error generating image:', err);
