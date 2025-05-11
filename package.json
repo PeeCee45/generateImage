@@ -1,8 +1,17 @@
 {
   "name": "html-to-image-api",
   "version": "1.0.0",
-  "main": "app.js",
+  "description": "HTML to PNG using Satori and Resvg",
+  "main": "api/generate-image.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "start": "node api/generate-image.js"
+  },
   "dependencies": {
-    "node-html-to-image": "^3.2.0"
+    "@resvg/resvg-js": "^2.4.0",
+    "satori": "^0.10.5"
+  },
+  "engines": {
+    "node": ">=16"
   }
 }
