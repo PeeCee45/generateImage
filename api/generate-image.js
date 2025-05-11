@@ -1,54 +1,20 @@
-const satori = require('satori');
-const { Resvg } = require('@resvg/resvg-js');
-const fs = require('fs');
-const path = require('path');
+const chromium = require('chrome-aws-lambda');
+const puppeteer = require('puppeteer-core');
 
 module.exports = async (req, res) => {
-  try {
-    const fontPath = path.join(__dirname, '../fonts/Poppins-Regular.ttf');
-    const fontData = fs.readFileSync(fontPath);
-    const fontPath2 = path.join(__dirname, '../fonts/Poppins-Bold.ttf');
-    const fontData2 = fs.readFileSync(fontPath);
+  const browser = await puppeteer.launch({
+    args: chromium.args,
+    defaultViewport: chromium.defaultViewport,
+    executablePath: await chromium.executablePath,
+    headless: chromium.headless,
+  });
 
-    const svg = await satori(
-      {
-        type: 'div',
-        props: {
-          style: {
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            width: '100%',
-            height: '100%',
-            background: '#f4f4f4',
-            fontSize: 36,
-          },
-          children: 'Hello from Satori!',
-        },
-      },
-      {
-        width: 600,
-        height: 400,
-        fonts: [
-          {
-            name: 'Poppins',
-            data: fontData,
-            weight: 400,
-            style: 'normal',
-          },
-        ],
-      }
-    );
+  const page = await browser.newPage();
+  await page.setContent('<h1>Hello from Puppeteer</h1>');
+  const buffer = await page.screenshot();
 
-    const pngBuffer = new Resvg(svg).render().asPng();
+  await browser.close();
 
-    const base64Image = pngBuffer.toString('base64');
-    res.status(200).json({
-      image: `data:image/png;base64,${base64Image}`
-    });
-
-  } catch (err) {
-    console.error('Image generation error:', err);
-    res.status(500).json({ error: 'Failed to generate image' });
-  }
+  res.setHeader('Content-Type', 'image/png');
+  res.send(buffer);
 };
