@@ -5,8 +5,10 @@ const path = require('path');
 
 module.exports = async (req, res) => {
   try {
-    const fontPath = path.join(__dirname, '../fonts/Inter-Regular.ttf');
+    const fontPath = path.join(__dirname, '../fonts/Poppins-Regular.ttf');
     const fontData = fs.readFileSync(fontPath);
+    const fontPath2 = path.join(__dirname, '../fonts/Poppins-Bold.ttf');
+    const fontData2 = fs.readFileSync(fontPath);
 
     const svg = await satori(
       {
@@ -29,7 +31,7 @@ module.exports = async (req, res) => {
         height: 400,
         fonts: [
           {
-            name: 'Inter',
+            name: 'Poppins',
             data: fontData,
             weight: 400,
             style: 'normal',
