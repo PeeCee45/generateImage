@@ -1,44 +1,49 @@
-const nodeHtmlToImage = require('node-html-to-image');
-
-async function generate() {
-  const html = `
-    <html>
-      <head>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: #f4f4f4;
-          }
-          h1 {
-            color: #333;
-          }
-        </style>
-      </head>
-      <body>
-        <h1>Hello from static HTML!</h1>
-      </body>
-    </html>
-  `;
-
-  const image = await nodeHtmlToImage({
-    html,
-    encoding: 'base64'
-  });
-
-  return `data:image/png;base64,${image}`;
-}
+const satori = require('satori');
+const { Resvg } = require('@resvg/resvg-js');
+const fs = require('fs');
+const path = require('path');
 
 module.exports = async (req, res) => {
   try {
-    const image = await generate();
-    res.setHeader('Content-Type', 'application/json');
-    res.status(200).json({ image });
+    const fontPath = path.join(__dirname, '../fonts/Inter-Regular.ttf');
+    const fontData = fs.readFileSync(fontPath);
+
+    const svg = await satori(
+      {
+        type: 'div',
+        props: {
+          style: {
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            width: '100%',
+            height: '100%',
+            background: '#f4f4f4',
+            fontSize: 36,
+          },
+          children: 'Hello from Satori!',
+        },
+      },
+      {
+        width: 600,
+        height: 400,
+        fonts: [
+          {
+            name: 'Inter',
+            data: fontData,
+            weight: 400,
+            style: 'normal',
+          },
+        ],
+      }
+    );
+
+    const pngBuffer = new Resvg(svg).render().asPng();
+
+    res.setHeader('Content-Type', 'image/png');
+    res.send(pngBuffer);
   } catch (err) {
-    console.error('Error generating image:', err);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error('Image generation error:', err);
+    res.status(500).json({ error: 'Failed to generate image' });
   }
 };
