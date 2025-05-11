@@ -40,8 +40,11 @@ module.exports = async (req, res) => {
 
     const pngBuffer = new Resvg(svg).render().asPng();
 
-    res.setHeader('Content-Type', 'image/png');
-    res.send(pngBuffer);
+    const base64Image = pngBuffer.toString('base64');
+    res.status(200).json({
+      image: `data:image/png;base64,${base64Image}`
+    });
+
   } catch (err) {
     console.error('Image generation error:', err);
     res.status(500).json({ error: 'Failed to generate image' });
